@@ -1,5 +1,3 @@
-#include <Leds.h>
-
 #include "EnvSensor.h"
 
 env_sensor env_sensor_instance;

@@ -4,6 +4,7 @@
 // Sensor library
 #include "bsec2.h"
 
+#include <Leds.h>
 #include "Display.h"
 
 class env_sensor
