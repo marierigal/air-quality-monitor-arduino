@@ -45,6 +45,9 @@ bool EnvSensor::begin()
             BSEC_OUTPUT_RUN_IN_STATUS,
         };
 
+        if (!bsec->setConfig(bsec_config))
+            checkSensorStatus();
+
         if (!bsec->updateSubscription(sensorList, ARRAY_LEN(sensorList), BSEC_SAMPLE_RATE_LP))
             checkSensorStatus();
 

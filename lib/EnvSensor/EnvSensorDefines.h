@@ -7,6 +7,13 @@
 #include <Leds.h>
 #include "Display.h"
 
+/**
+ * @brief BSEC configuration
+ */
+const uint8_t bsec_config[] = {
+#include "config/bme688_sel_33v_3s_4d.txt"
+};
+
 class env_sensor
 {
 public:
