@@ -5,6 +5,9 @@
 #include <Leds.h>
 Leds leds;
 
+#include <Display.h>
+Display display;
+
 #include <EnvSensor.h>
 EnvSensor envSensor;
 
@@ -25,6 +28,7 @@ void setup()
   Serial.println();
 
   leds.begin();
+  display.begin();
   envSensor.begin();
 }
 
