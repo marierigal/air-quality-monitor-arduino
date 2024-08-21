@@ -39,13 +39,17 @@ protected:
 
     /**
      * @brief Error function
+     * @param message The message to display
+     * @param code The error code
      */
-    void error();
+    void error(const char *message, uint8_t code);
 
     /**
      * @brief Warning function
+     * @param message The message to display
+     * @param code The warning code
      */
-    void warning();
+    void warning(const char *message, uint8_t code);
 
     /**
      * @brief Get BSEC version

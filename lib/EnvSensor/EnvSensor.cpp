@@ -76,8 +76,14 @@ void EnvSensor::update()
         checkSensorStatus();
 }
 
-void EnvSensor::error()
+void EnvSensor::error(const char *message, uint8_t code)
 {
+    char buffer[50];
+    sprintf(buffer, "%s %d", message, code);
+
+    Serial.println(buffer);
+    display.error(buffer);
+
     while (true)
     {
         leds.error();
@@ -87,9 +93,16 @@ void EnvSensor::error()
     }
 }
 
-void EnvSensor::warning()
+void EnvSensor::warning(const char *message, uint8_t code)
 {
+    char buffer[50];
+    sprintf(buffer, "%s %d", message, code);
+
+    Serial.println(buffer);
+    display.warning(buffer);
     leds.warning();
+    delay(3000);
+    leds.clear();
 }
 
 void EnvSensor::checkSensorStatus()
@@ -97,33 +110,21 @@ void EnvSensor::checkSensorStatus()
     uint8_t status = bsec->status;
     if (status < BSEC_OK)
     {
-        Serial.print(F("[BSEC] Error: "));
-        Serial.print(status);
-        Serial.println();
-        error();
+        error("BSEC", status);
     }
     else if (status > BSEC_OK)
     {
-        Serial.print(F("[BSEC] Warning: "));
-        Serial.print(status);
-        Serial.println();
-        warning();
+        warning("BSEC", status);
     }
 
     uint8_t sensor_status = bsec->sensor.status;
     if (sensor_status < BME68X_OK)
     {
-        Serial.print(F("[BME68X] Error: "));
-        Serial.print(sensor_status);
-        Serial.println();
-        error();
+        error("BME68X", sensor_status);
     }
     else if (sensor_status > BME68X_OK)
     {
-        Serial.print(F("[BME68X] Warning: "));
-        Serial.print(sensor_status);
-        Serial.println();
-        warning();
+        warning("BME68X", sensor_status);
     }
 }
 
