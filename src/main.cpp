@@ -2,6 +2,9 @@
 
 #define DEBUG 1
 
+#include <Leds.h>
+Leds leds;
+
 #include <EnvSensor.h>
 EnvSensor envSensor;
 
@@ -21,6 +24,7 @@ void setup()
   Serial.println("-------------------------------------");
   Serial.println();
 
+  leds.begin();
   envSensor.begin();
 }
 

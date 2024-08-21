@@ -38,9 +38,14 @@ protected:
     Bsec2 *bsec = nullptr;
 
     /**
-     * @brief Idle function on error
+     * @brief Error function
      */
-    void idle();
+    void error();
+
+    /**
+     * @brief Warning function
+     */
+    void warning();
 
     /**
      * @brief Get BSEC version

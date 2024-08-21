@@ -1,3 +1,5 @@
+#include <Leds.h>
+
 #include "EnvSensor.h"
 
 env_sensor env_sensor_instance;
@@ -67,14 +69,24 @@ void EnvSensor::update()
     if (bsec == nullptr)
         return;
 
-    bsec->run();
+    if (!bsec->run())
+        checkSensorStatus();
 }
 
-void EnvSensor::idle()
+void EnvSensor::error()
 {
-    Serial.println("Going idle...");
     while (true)
-        delay(10);
+    {
+        leds.error();
+        delay(500);
+        leds.clear();
+        delay(500);
+    }
+}
+
+void EnvSensor::warning()
+{
+    leds.warning();
 }
 
 void EnvSensor::checkSensorStatus()
@@ -82,23 +94,25 @@ void EnvSensor::checkSensorStatus()
     uint8_t status = bsec->status;
     if (status < BSEC_OK)
     {
-        Serial.println("[ERROR] BSEC library encountered an error during initialization, error code: " + String(status));
-        idle();
+        Serial.println("[BSEC] Error: " + String(status) + "\n");
+        error();
     }
     else if (status > BSEC_OK)
     {
-        Serial.println("[WARNING] BSEC library is initialized but encountered an error, error code: " + String(status));
+        Serial.println("[BSEC] Warning: " + String(status) + "\n");
+        warning();
     }
 
     uint8_t sensor_status = bsec->sensor.status;
     if (sensor_status < BME68X_OK)
     {
-        Serial.print("[ERROR] BME68X library encountered an error during initialization, error code: " + String(sensor_status));
-        idle();
+        Serial.print("[BME68X] Error: " + String(sensor_status) + "\n");
+        error();
     }
     else if (sensor_status > BME68X_OK)
     {
-        Serial.print("[WARNING] BME68X is initialized but encountered an error, error code: " + String(sensor_status));
+        Serial.print("[BME68X] Warning: " + String(sensor_status) + "\n");
+        warning();
     }
 }
 
