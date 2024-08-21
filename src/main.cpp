@@ -19,9 +19,9 @@ void setup()
 #endif
 
   Serial.println();
-  Serial.println("-------------------------------------");
-  Serial.println("|        Air Quality Monitor        |");
-  Serial.println("-------------------------------------");
+  Serial.println(F("-------------------------------------"));
+  Serial.println(F("|        Air Quality Monitor        |"));
+  Serial.println(F("-------------------------------------"));
   Serial.println();
 
   leds.begin();
@@ -33,7 +33,8 @@ void loop()
   long now = millis();
   if (now - lastTime > 3000)
   {
-    Serial.println("temperature:" + String(env_sensor::temperature));
+    Serial.print(F("temperature:"));
+    Serial.println(env_sensor::temperature);
     lastTime = now;
   }
 

@@ -52,7 +52,10 @@ bool EnvSensor::begin()
 
         bsec->attachCallback(newDataAvailable);
 
-        Serial.println("\nBSEC version: " + getBsecVersion() + "\n");
+        Serial.println();
+        Serial.print(F("BSEC version: "));
+        Serial.println(getBsecVersion());
+        Serial.println();
     }
 
     return true;
@@ -94,24 +97,32 @@ void EnvSensor::checkSensorStatus()
     uint8_t status = bsec->status;
     if (status < BSEC_OK)
     {
-        Serial.println("[BSEC] Error: " + String(status) + "\n");
+        Serial.print(F("[BSEC] Error: "));
+        Serial.print(status);
+        Serial.println();
         error();
     }
     else if (status > BSEC_OK)
     {
-        Serial.println("[BSEC] Warning: " + String(status) + "\n");
+        Serial.print(F("[BSEC] Warning: "));
+        Serial.print(status);
+        Serial.println();
         warning();
     }
 
     uint8_t sensor_status = bsec->sensor.status;
     if (sensor_status < BME68X_OK)
     {
-        Serial.print("[BME68X] Error: " + String(sensor_status) + "\n");
+        Serial.print(F("[BME68X] Error: "));
+        Serial.print(sensor_status);
+        Serial.println();
         error();
     }
     else if (sensor_status > BME68X_OK)
     {
-        Serial.print("[BME68X] Warning: " + String(sensor_status) + "\n");
+        Serial.print(F("[BME68X] Warning: "));
+        Serial.print(sensor_status);
+        Serial.println();
         warning();
     }
 }
@@ -120,11 +131,11 @@ String EnvSensor::getBsecVersion()
 {
     String version;
     version.concat(bsec->version.major);
-    version.concat(".");
+    version.concat(F("."));
     version.concat(bsec->version.minor);
-    version.concat(".");
+    version.concat(F("."));
     version.concat(bsec->version.major_bugfix);
-    version.concat(".");
+    version.concat(F("."));
     version.concat(bsec->version.minor_bugfix);
     return version;
 }
