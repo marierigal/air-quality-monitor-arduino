@@ -27,7 +27,7 @@ EnvSensor::~EnvSensor()
     end();
 }
 
-bool EnvSensor::begin()
+EnvSensorStatus EnvSensor::begin()
 {
     if (bsec == nullptr)
     {
@@ -35,7 +35,7 @@ bool EnvSensor::begin()
         Wire.begin();
 
         if (!bsec->begin(BME68X_I2C_ADDR_LOW, Wire))
-            checkSensorStatus();
+            return getStatus();
 
         bsec_virtual_sensor_t sensorList[] = {
             BSEC_OUTPUT_RAW_TEMPERATURE,
@@ -52,20 +52,15 @@ bool EnvSensor::begin()
         };
 
         if (!bsec->setConfig(bsec_config))
-            checkSensorStatus();
+            return getStatus();
 
         if (!bsec->updateSubscription(sensorList, ARRAY_LEN(sensorList), BSEC_SAMPLE_RATE_LP))
-            checkSensorStatus();
+            return getStatus();
 
         bsec->attachCallback(newDataAvailable);
-
-        Serial.println();
-        Serial.print(F("BSEC version: "));
-        Serial.println(getBsecVersion());
-        Serial.println();
     }
 
-    return true;
+    return getStatus();
 }
 
 void EnvSensor::end()
@@ -74,78 +69,50 @@ void EnvSensor::end()
     bsec = nullptr;
 }
 
-void EnvSensor::update()
+EnvSensorStatus EnvSensor::update()
 {
     if (bsec == nullptr)
-        return;
+        return getStatus();
 
-    if (!bsec->run())
-        checkSensorStatus();
+    bsec->run();
+
+    return getStatus();
 }
 
-void EnvSensor::error(const char *message, uint8_t code)
+EnvSensorStatus EnvSensor::getStatus()
 {
-    char buffer[50];
-    sprintf(buffer, "%s %d", message, code);
+    int8_t bsecStatus = getBsecStatus();
+    int8_t bme68xStatus = getBme68xStatus();
 
-    Serial.println(buffer);
-    display.error(buffer);
+    if (bsecStatus < BSEC_OK || bme68xStatus < BME68X_OK)
+        return ENV_SENSOR_ERROR;
 
-    while (true)
-    {
-        leds.error();
-        delay(500);
-        leds.clear();
-        delay(500);
-    }
+    if (bsecStatus > BSEC_OK || bme68xStatus > BME68X_OK)
+        return ENV_SENSOR_WARNING;
+
+    return ENV_SENSOR_OK;
 }
 
-void EnvSensor::warning(const char *message, uint8_t code)
+int8_t EnvSensor::getBsecStatus()
 {
-    char buffer[50];
-    sprintf(buffer, "%s %d", message, code);
-
-    Serial.println(buffer);
-    display.warning(buffer);
-    leds.warning();
-    delay(3000);
-    leds.clear();
+    return bsec->status;
 }
 
-void EnvSensor::checkSensorStatus()
+int8_t EnvSensor::getBme68xStatus()
 {
-    uint8_t status = bsec->status;
-    if (status < BSEC_OK)
-    {
-        error("BSEC", status);
-    }
-    else if (status > BSEC_OK)
-    {
-        warning("BSEC", status);
-    }
-
-    uint8_t sensor_status = bsec->sensor.status;
-    if (sensor_status < BME68X_OK)
-    {
-        error("BME68X", sensor_status);
-    }
-    else if (sensor_status > BME68X_OK)
-    {
-        warning("BME68X", sensor_status);
-    }
+    return bsec->sensor.status;
 }
 
-String EnvSensor::getBsecVersion()
+String EnvSensor::getVersion()
 {
-    String version;
-    version.concat(bsec->version.major);
-    version.concat(F("."));
-    version.concat(bsec->version.minor);
-    version.concat(F("."));
-    version.concat(bsec->version.major_bugfix);
-    version.concat(F("."));
-    version.concat(bsec->version.minor_bugfix);
+    char version[16];
+    sprintf(version, "%d.%d.%d.%d", bsec->version.major, bsec->version.minor, bsec->version.major_bugfix, bsec->version.minor_bugfix);
     return version;
+}
+
+bsec_version_t EnvSensor::getBsecVersion()
+{
+    return bsec->version;
 }
 
 void EnvSensor::newDataAvailable(const bme68xData data, const bsecOutputs outputs, Bsec2 bsec)

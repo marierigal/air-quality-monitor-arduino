@@ -59,6 +59,4 @@ protected:
     Adafruit_DotStar *leds = nullptr;
 };
 
-extern Leds leds;
-
 #endif //_LEDS_H_INCLUDED

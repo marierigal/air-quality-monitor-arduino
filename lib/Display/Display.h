@@ -86,6 +86,4 @@ protected:
     Bounds getTextBounds(String message);
 };
 
-extern Display display;
-
 #endif //_DISPLAY_H_INCLUDED
