@@ -1,0 +1,95 @@
+#!/bin/bash
+
+GLOBAL_LIB_DIR="./lib"
+
+LIB_NAME=$1
+
+# Loop until a valid library name and path is provided
+while [ true ]; do
+  # Check that the library name is provided,
+  # if not, ask for it
+  if [ -z "$LIB_NAME" ]; then
+    read -p "Library name: " LIB_NAME
+  fi
+
+  # Check that the library name is pascal case
+  # If not, ask for it again
+  if [[ ! $LIB_NAME =~ ^[A-Z][A-Za-z0-9]+$ ]]; then
+    echo "Library name must be in PascalCase"
+    LIB_NAME=""
+    continue
+  fi
+
+  # Check if the path already exists
+  if [ -d "$GLOBAL_LIB_DIR/$LIB_NAME" ]; then
+    echo "Library already exists"
+    LIB_NAME=""
+    continue
+  fi
+
+  break
+done
+
+# Set the library path
+LIB_DIR="$GLOBAL_LIB_DIR/$LIB_NAME"
+
+# Transform the lib name from PascalCase to SCREAMING_SNAKE_CASE
+LIB_NAME_CAPS=$(echo $LIB_NAME | sed -r 's/([A-Z])/_\1/g' | tr '[:lower:]' '[:upper:]' | sed 's/^_//')
+
+# Create the library directory
+mkdir $LIB_DIR
+
+# Generate library files
+
+## Create LibName/LibName.h
+echo "#ifndef _${LIB_NAME_CAPS}_H_INCLUDED_
+#define _${LIB_NAME_CAPS}_H_INCLUDED_
+
+class $LIB_NAME
+{
+public:
+    $LIB_NAME();
+    ~$LIB_NAME();
+
+    /**
+     * @brief Initialize the instance
+     */
+    void begin();
+
+    /**
+     * @brief Destroy the instance
+     */
+    void end();
+};
+
+#endif // _${LIB_NAME_CAPS}_H_INCLUDED_
+" > "$LIB_DIR/$LIB_NAME.h"
+
+echo "Created $LIB_DIR/$LIB_NAME.h"
+
+## Create LibName/LibName.cpp
+echo "#include \"$LIB_NAME.h\"
+
+$LIB_NAME::$LIB_NAME()
+{
+}
+
+$LIB_NAME::~$LIB_NAME()
+{
+    end();
+}
+
+void $LIB_NAME::begin()
+{
+}
+
+void $LIB_NAME::end()
+{
+}
+" > "$LIB_DIR/$LIB_NAME.cpp"
+
+echo "Created $LIB_DIR/$LIB_NAME.cpp"
+
+# End
+echo "Done!"
+exit 0
