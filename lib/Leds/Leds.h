@@ -7,6 +7,7 @@ class Leds
 {
 public:
     Leds();
+    ~Leds();
 
     uint32_t black = 0x000000;
     uint32_t red = 0xFF0000;

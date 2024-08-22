@@ -7,6 +7,7 @@ class EnvSensor
 {
 public:
     EnvSensor();
+    ~EnvSensor();
 
     /**
      * @brief Initialize the instance

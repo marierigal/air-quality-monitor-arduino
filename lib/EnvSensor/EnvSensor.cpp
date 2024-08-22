@@ -21,6 +21,11 @@ EnvSensor::EnvSensor()
 {
 }
 
+EnvSensor::~EnvSensor()
+{
+    end();
+}
+
 bool EnvSensor::begin()
 {
     if (bsec == nullptr)

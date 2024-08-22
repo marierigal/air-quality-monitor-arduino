@@ -4,6 +4,11 @@ Leds::Leds()
 {
 }
 
+Leds::~Leds()
+{
+    end();
+}
+
 bool Leds::begin()
 {
     if (leds == nullptr)
@@ -22,6 +27,8 @@ bool Leds::begin()
 
 void Leds::end()
 {
+    clear();
+
     delete leds;
     leds = nullptr;
 }

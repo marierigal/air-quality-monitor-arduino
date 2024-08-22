@@ -4,6 +4,11 @@ Display::Display()
 {
 }
 
+Display::~Display()
+{
+    end();
+}
+
 bool Display::begin()
 {
     if (display == nullptr)
@@ -23,8 +28,16 @@ bool Display::begin()
 
 void Display::end()
 {
+    clear();
+    display->enableDisplay(false);
+
     // delete display;
     display = nullptr;
+}
+
+void Display::clear()
+{
+    display->fillScreen(black);
 }
 
 void Display::error(const char *message)

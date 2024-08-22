@@ -20,6 +20,7 @@ class Display
 {
 public:
     Display();
+    ~Display();
 
     uint16_t black = ST77XX_BLACK;
     uint16_t white = ST77XX_WHITE;
