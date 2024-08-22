@@ -1,7 +1,5 @@
 #include <Arduino.h>
 
-#define DEBUG 1
-
 #include <Leds.h>
 Leds leds;
 
@@ -16,10 +14,9 @@ long lastTime = 0;
 void setup()
 {
   Serial.begin(115200);
-#if (DEBUG)
-  while (!Serial)
+  long now = millis();
+  while (!Serial || millis() - now < 3000)
     delay(10);
-#endif
 
   Serial.println();
   Serial.println(F("-------------------------------------"));
