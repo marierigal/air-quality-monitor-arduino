@@ -40,17 +40,17 @@ void Display::clear()
     display->fillScreen(black);
 }
 
-void Display::error(const char *message)
+void Display::error(String message)
 {
     iconWithText(red, white, bitmap_error, message);
 }
 
-void Display::warning(const char *message)
+void Display::warning(String message)
 {
     iconWithText(orange, white, bitmap_warning, message);
 }
 
-void Display::iconWithText(uint16_t backgroundColor, uint16_t foregroundColor, const byte *bitmap, const char *message)
+void Display::iconWithText(uint16_t backgroundColor, uint16_t foregroundColor, const byte *bitmap, String message)
 {
     display->fillScreen(backgroundColor);
 
@@ -68,7 +68,7 @@ void Display::iconWithText(uint16_t backgroundColor, uint16_t foregroundColor, c
     display->print(message);
 }
 
-Bounds Display::getTextBounds(const char *message)
+Bounds Display::getTextBounds(String message)
 {
     int16_t x1, y1;
     uint16_t width, height;

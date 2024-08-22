@@ -57,13 +57,13 @@ public:
      * @brief Display an error screen
      * @param message The message to display
      */
-    void error(const char *message);
+    void error(String message);
 
     /**
      * @brief Display a warning screen
      * @param message The message to display
      */
-    void warning(const char *message);
+    void warning(String message);
 
 protected:
     Adafruit_ST7789 *display = nullptr;
@@ -75,7 +75,7 @@ protected:
      * @param bitmap The icon to display, 1-bit per pixel horizontal
      * @param message The message to display
      */
-    void iconWithText(uint16_t backgroundColor, uint16_t foregroundColor, const byte *bitmap, const char *message);
+    void iconWithText(uint16_t backgroundColor, uint16_t foregroundColor, const byte *bitmap, String message);
 
     /**
      * @brief Get the origin coordinates of the text to center it
@@ -83,7 +83,7 @@ protected:
      *
      * @return The bounds of the text
      */
-    Bounds getTextBounds(const char *message);
+    Bounds getTextBounds(String message);
 };
 
 extern Display display;
