@@ -1,6 +1,7 @@
 #include "EnvSensor.h"
 
-env_sensor env_sensor_instance;
+// Initialize the env_sensor instance
+env_sensor env_sensor_state;
 float env_sensor::temperature;
 float env_sensor::rawTemperature;
 float env_sensor::humidity;

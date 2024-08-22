@@ -1,7 +1,13 @@
 #ifndef _LEDS_H_INCLUDED
 #define _LEDS_H_INCLUDED
 
-#include "LedsDefines.h"
+// LEDs library
+#include <Adafruit_DotStar.h>
+
+#define NUMPIXELS 5 // Number of LEDs
+#define DATAPIN 5
+#define CLOCKPIN 4
+#define BRIGHNESS 15
 
 class Leds
 {
