@@ -27,7 +27,7 @@ EnvSensor::~EnvSensor()
     end();
 }
 
-EnvSensorStatus EnvSensor::begin()
+EnvSensorStatus EnvSensor::begin(bool (*userLoadState)(uint8_t *state) /* nullptr */)
 {
     if (bsec == nullptr)
     {
@@ -51,9 +51,20 @@ EnvSensorStatus EnvSensor::begin()
             BSEC_OUTPUT_RUN_IN_STATUS,
         };
 
+        // Set config
         if (!bsec->setConfig(bsec_config))
             return getStatus();
 
+        // Set state
+        if (userLoadState)
+        {
+            uint8_t state[EnvSensor::STATE_MAX_SIZE];
+            if (userLoadState(state))
+                if (!bsec->setState(state))
+                    return getStatus();
+        }
+
+        // Subscribe to data updates
         if (!bsec->updateSubscription(sensorList, ARRAY_LEN(sensorList), BSEC_SAMPLE_RATE_LP))
             return getStatus();
 
@@ -101,6 +112,11 @@ int8_t EnvSensor::getBsecStatus()
 int8_t EnvSensor::getBme68xStatus()
 {
     return bsec->sensor.status;
+}
+
+bool EnvSensor::getState(uint8_t *state)
+{
+    return bsec->getState(state);
 }
 
 String EnvSensor::getVersion()

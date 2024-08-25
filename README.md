@@ -14,6 +14,7 @@ This Arduino project read data from BM68x sensor and use BSEC library to get IAQ
 - [Bosch BSEC2 library](https://github.com/boschsensortec/Bosch-BSEC2-Library) (for IAQ calculation)
 - [Adafruit DotStar](https://github.com/adafruit/Adafruit_DotStar) (for RGB LEDs)
 - [Adafruit ST7735 and ST7789 Library](https://github.com/adafruit/Adafruit-ST7735-Library) (for TFT display)
+- [SD](https://github.com/arduino-libraries/SD) (for SD card)
 
 > Please note that you can include the [Arduino_MKRIoTCarrier](https://github.com/arduino-libraries/Arduino_MKRIoTCarrier) library to have a unified object for accessing the peripherals of the carrier.
 
@@ -59,7 +60,7 @@ This project is configured to work with [PlatformIO](https://platformio.org). Yo
 
 ## TODO
 
-- [ ] Save and load sensor configuration on SD card
+- [x] Save and load sensor configuration on SD card
 - [ ] Display IAQ data on TFT display
 - [ ] Use touch buttons to interact with the display
 - [ ] Use relay to control air purifier
