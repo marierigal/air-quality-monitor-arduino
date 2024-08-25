@@ -5,19 +5,55 @@
 #include <Data.h>
 #include <EnvSensor.h>
 
+#include "bitmap_droplet.h"
+#include "bitmap_leaf.h"
+#include "bitmap_temperature.h"
+
 #define BSEC_SAVE_STATE 1
 #define BSEC_STATE_SAVE_INTERVAL (5 * 60 * 1000)
 
+#define STATE_TIMEOUT (10 * 1000)
+
+typedef enum
+{
+  APP_STATE_IDLE,
+  APP_STATE_TEMPERATURE,
+  APP_STATE_HUMIDITY,
+  APP_STATE_IAQ,
+} AppState;
+
+AppState appState = APP_STATE_IDLE;
+AppState lastAppState = appState;
+long lastAppStateChange;
 Leds leds;
 Display display;
 Data data;
 EnvSensor envSensor;
-unsigned long lastBsecStateSave;
+String lastData;
+long lastBsecStateSave;
 
 /**
  * @brief Halt the execution
  */
 void halt();
+
+/**
+ * @brief Set the application state
+ */
+void setAppState(AppState state);
+
+/**
+ * @brief Switch to next application state
+ */
+void nextAppState();
+
+/**
+ * @brief Display a data screen
+ * @param background The background color
+ * @param icon The icon to display
+ * @param data The data to display
+ */
+void displayDataScreen(uint16_t background, const byte *icon, String data);
 
 /**
  * @brief Get BSEC state from SD card
@@ -136,6 +172,11 @@ void setup()
    */
   leds.clear();
   display.clear();
+
+  /**
+   * Set the initial state
+   */
+  nextAppState();
 }
 
 /**
@@ -143,31 +184,46 @@ void setup()
  */
 void loop()
 {
+  envSensor.update();
+
 #if BSEC_SAVE_STATE
-  long now = millis();
-  if (now - lastBsecStateSave > BSEC_STATE_SAVE_INTERVAL)
+  if (millis() - lastBsecStateSave > BSEC_STATE_SAVE_INTERVAL)
   {
-    Serial.print(F("temperature:"));
-    Serial.println(env_sensor::temperature);
-    Serial.print(F("humidity:"));
-    Serial.println(env_sensor::humidity);
-    Serial.print(F("iaq:"));
-    Serial.println(env_sensor::iaq);
-    Serial.print(F("accuracy:"));
-    Serial.println(env_sensor::iaqAccuracy);
-
-    if (saveBsecState())
-      Serial.println(F("BSEC state saved"));
-    else
-      Serial.println(F("Error saving BSEC state"));
-
-    Serial.println();
-
-    lastBsecStateSave = now;
+    saveBsecState();
+    lastBsecStateSave = millis();
   }
 #endif
 
-  envSensor.update();
+  uint8_t data;
+
+  switch (appState)
+  {
+  case APP_STATE_IDLE:
+    leds.clear();
+    display.clear();
+    break;
+
+  case APP_STATE_TEMPERATURE:
+    data = env_sensor::temperature;
+    displayDataScreen(display.color565(64, 204, 177), bitmap_temperature, String(data) + "'");
+    break;
+
+  case APP_STATE_HUMIDITY:
+    data = env_sensor::humidity;
+    displayDataScreen(display.color565(51, 123, 204), bitmap_droplet, String(data) + "%");
+    break;
+
+  case APP_STATE_IAQ:
+    data = 100 - env_sensor::iaq * 100 / 500;
+    displayDataScreen(display.color565(141, 204, 51), bitmap_leaf, String(data) + "%");
+    break;
+  }
+
+  if (millis() - lastAppStateChange > STATE_TIMEOUT)
+  {
+    nextAppState();
+    lastAppStateChange = millis();
+  }
 
   delay(10);
 }
@@ -177,6 +233,50 @@ void halt()
   Serial.println(F("Halting..."));
   while (true)
     delay(10);
+}
+
+void setAppState(AppState state)
+{
+  appState = state;
+}
+
+void nextAppState()
+{
+  switch (appState)
+  {
+  case APP_STATE_IDLE:
+    setAppState(APP_STATE_IAQ);
+    break;
+
+  case APP_STATE_IAQ:
+    setAppState(APP_STATE_TEMPERATURE);
+    break;
+
+  case APP_STATE_TEMPERATURE:
+    setAppState(APP_STATE_HUMIDITY);
+    break;
+
+  case APP_STATE_HUMIDITY:
+    setAppState(APP_STATE_IAQ);
+    break;
+  }
+}
+
+void displayDataScreen(uint16_t background, const byte *icon, String data)
+{
+  if (lastAppState != appState)
+  {
+    lastAppState = appState;
+    lastData = "";
+    display.drawBackground(background);
+    display.drawIcon(30, icon, 64, 64, Display::WHITE);
+  }
+
+  if (lastData != data)
+  {
+    lastData = data;
+    display.drawText(120, data, 8, Display::WHITE, background);
+  }
 }
 
 bool loadBsecState(uint8_t *state)

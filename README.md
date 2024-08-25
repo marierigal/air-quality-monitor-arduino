@@ -61,6 +61,6 @@ This project is configured to work with [PlatformIO](https://platformio.org). Yo
 ## TODO
 
 - [x] Save and load sensor configuration on SD card
-- [ ] Display IAQ data on TFT display
+- [x] Display IAQ data on TFT display
 - [ ] Use touch buttons to interact with the display
 - [ ] Use relay to control air purifier

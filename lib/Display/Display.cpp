@@ -20,7 +20,7 @@ bool Display::begin()
 
         // Default rotation to align it with the carrier
         display->setRotation(2);
-        display->fillScreen(black);
+        display->fillScreen(BLACK);
     }
 
     return true;
@@ -37,42 +37,88 @@ void Display::end()
 
 void Display::clear()
 {
-    display->fillScreen(black);
+    display->fillScreen(BLACK);
+}
+
+uint16_t Display::color565(uint8_t r, uint8_t g, uint8_t b)
+{
+    return display->color565(r, g, b);
 }
 
 void Display::error(String message)
 {
-    iconWithText(red, white, bitmap_error, message);
+    display->color565(255, 0, 0);
+    iconWithText(RED, WHITE, bitmap_error, message);
 }
 
 void Display::warning(String message)
 {
-    iconWithText(orange, white, bitmap_warning, message);
+    iconWithText(ORANGE, WHITE, bitmap_warning, message);
+}
+
+void Display::drawBackground(uint16_t color)
+{
+    display->fillScreen(color);
+}
+
+void Display::drawIcon(uint16_t x, uint16_t y, const byte *bitmap, uint16_t width, uint16_t height, uint16_t color)
+{
+    display->drawBitmap(x, y, bitmap, width, height, color);
+}
+
+void Display::drawIcon(uint16_t y, const byte *bitmap, uint16_t width, uint16_t height, uint16_t color)
+{
+    uint16_t x = (display->width() - width) / 2;
+    drawIcon(x, y, bitmap, width, height, color);
+}
+
+void Display::drawIcon(const byte *bitmap, uint16_t width, uint16_t height, uint16_t color)
+{
+    uint16_t x = (display->width() - width) / 2;
+    uint16_t y = (display->height() - height) / 2;
+    drawIcon(x, y, bitmap, width, height, color);
+}
+
+void Display::drawText(uint16_t x, uint16_t y, String message, uint8_t size, uint16_t color, uint16_t background)
+{
+    Bounds textBounds = getTextBounds(message, size);
+    display->fillRect(0, y, display->width(), textBounds.height, background);
+    display->setTextColor(color);
+    display->setTextWrap(false);
+    display->setTextSize(size);
+    display->setCursor(x, y);
+    display->print(message);
+}
+
+void Display::drawText(uint16_t y, String message, uint8_t size, uint16_t color, uint16_t background)
+{
+    Bounds textBounds = getTextBounds(message, size);
+    drawText(textBounds.centerOrigin.x, y, message, size, color, background);
+}
+
+void Display::drawText(String message, uint8_t size, uint16_t color, uint16_t background)
+{
+    Bounds textBounds = getTextBounds(message, size);
+    drawText(textBounds.centerOrigin.x, textBounds.centerOrigin.y, message, size, color, background);
 }
 
 void Display::iconWithText(uint16_t backgroundColor, uint16_t foregroundColor, const byte *bitmap, String message)
 {
-    display->fillScreen(backgroundColor);
+    uint16_t yCenter = display->height() / 2;
 
-    uint16_t x = (display->width() - ICON_WIDTH) / 2;
-    uint16_t y = display->height() / 2 - ICON_HEIGHT - 16;
-    display->drawBitmap(x, y, bitmap, ICON_WIDTH, ICON_HEIGHT, foregroundColor);
+    Bounds textBounds = getTextBounds(message, 3);
 
-    display->setTextColor(foregroundColor);
-    display->setTextWrap(false);
-    display->setTextSize(3);
-
-    Bounds textBounds = getTextBounds(message);
-
-    display->setCursor(textBounds.centerOrigin.x, textBounds.centerOrigin.y + textBounds.height);
-    display->print(message);
+    drawBackground(backgroundColor);
+    drawIcon(yCenter - ICON_HEIGHT - 16, bitmap, ICON_WIDTH, ICON_HEIGHT, foregroundColor);
+    drawText(yCenter + textBounds.height, message, 3, foregroundColor);
 }
 
-Bounds Display::getTextBounds(String message)
+Bounds Display::getTextBounds(String message, uint8_t size)
 {
     int16_t x1, y1;
     uint16_t width, height;
 
+    display->setTextSize(size);
     display->getTextBounds(message, 0, 0, &x1, &y1, &width, &height);
 
     int16_t x = (display->width() - width) / 2;
