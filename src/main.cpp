@@ -23,7 +23,7 @@ void setup()
    */
   Serial.begin(115200);
   long now = millis();
-  while (!Serial || millis() - now < 3000)
+  while (!Serial && millis() - now < 3000)
     delay(10);
 
   Serial.println();
