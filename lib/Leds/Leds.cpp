@@ -18,7 +18,7 @@ bool Leds::begin()
 
     leds->begin();
 
-    leds->setBrightness(BRIGHNESS);
+    leds->setBrightness(BRIGHTNESS);
     leds->clear();
     leds->show();
 

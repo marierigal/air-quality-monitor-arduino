@@ -7,7 +7,7 @@
 #define NUMPIXELS 5 // Number of LEDs
 #define DATAPIN 5
 #define CLOCKPIN 4
-#define BRIGHNESS 15
+#define BRIGHTNESS 15
 
 class Leds
 {
