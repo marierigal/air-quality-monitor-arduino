@@ -275,7 +275,7 @@ void displayDataScreen(uint16_t background, const byte *icon, String data)
   if (lastData != data)
   {
     lastData = data;
-    display.drawText(120, data, 8, Display::WHITE, background);
+    display.drawText(160, data, 10, Display::WHITE, background);
   }
 }
 

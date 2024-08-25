@@ -21,6 +21,9 @@ bool Display::begin()
         // Default rotation to align it with the carrier
         display->setRotation(2);
         display->fillScreen(BLACK);
+
+        // Set custom font
+        display->setFont(&Org_01);
     }
 
     return true;
@@ -109,7 +112,7 @@ void Display::iconWithText(uint16_t backgroundColor, uint16_t foregroundColor, c
     Bounds textBounds = getTextBounds(message, 3);
 
     drawBackground(backgroundColor);
-    drawIcon(yCenter - ICON_HEIGHT - 16, bitmap, ICON_WIDTH, ICON_HEIGHT, foregroundColor);
+    drawIcon(30, bitmap, ICON_WIDTH, ICON_HEIGHT, foregroundColor);
     drawText(yCenter + textBounds.height, message, 3, foregroundColor);
 }
 

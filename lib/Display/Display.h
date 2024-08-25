@@ -4,6 +4,7 @@
 // Display libraries
 #include <Adafruit_GFX.h>
 #include <Adafruit_ST7789.h>
+#include <Fonts/Org_01.h>
 
 #define TFT_CS 2
 #define TFT_DC 1
