@@ -76,6 +76,12 @@ String getBsecStateFileDir();
 String getBsecStateFilename();
 
 /**
+ * @brief Handle the environment sensor status
+ * @param status The environment sensor status
+ */
+void handleEnvSensorStatus(EnvSensorStatus status, bool showWarning);
+
+/**
  * @brief Setup
  */
 void setup()
@@ -125,42 +131,7 @@ void setup()
    * Initialize the environment sensor
    */
   EnvSensorStatus envSensorStatus = envSensor.begin(loadBsecState);
-  if (envSensorStatus != ENV_SENSOR_OK)
-  {
-    int8_t bme68xStatus = envSensor.getBme68xStatus();
-    int8_t bsecStatus = envSensor.getBsecStatus();
-
-    Serial.print(F("Environment sensor status: BME68X "));
-    Serial.print(bme68xStatus);
-    Serial.print(F(" | BSEC "));
-    Serial.println(bsecStatus);
-
-    if (bme68xStatus < BME68X_OK)
-    {
-      leds.error();
-      display.error("BME68X " + String(bme68xStatus));
-      return halt();
-    }
-    else if (bme68xStatus > BME68X_OK)
-    {
-      leds.warning();
-      display.warning("BME68X " + String(bme68xStatus));
-      delay(3000);
-    }
-
-    if (bsecStatus < BSEC_OK)
-    {
-      leds.error();
-      display.error("BSEC " + String(bsecStatus));
-      return halt();
-    }
-    else if (bsecStatus > BSEC_OK)
-    {
-      leds.warning();
-      display.warning("BSEC " + String(bsecStatus));
-      delay(3000);
-    }
-  }
+  handleEnvSensorStatus(envSensorStatus, true);
 
   Serial.println();
   Serial.print(F("BSEC version: "));
@@ -184,7 +155,7 @@ void setup()
  */
 void loop()
 {
-  envSensor.update();
+  handleEnvSensorStatus(envSensor.update(), false);
 
 #if BSEC_SAVE_STATE
   if (millis() - lastBsecStateSave > BSEC_STATE_SAVE_INTERVAL)
@@ -310,4 +281,44 @@ String getBsecStateFileDir()
 String getBsecStateFilename()
 {
   return getBsecStateFileDir() + "/state.txt";
+}
+
+void handleEnvSensorStatus(EnvSensorStatus status, bool showWarning)
+{
+  if (status == ENV_SENSOR_OK)
+    return;
+
+  int8_t bme68xStatus = envSensor.getBme68xStatus();
+  int8_t bsecStatus = envSensor.getBsecStatus();
+
+  Serial.print(F("Environment sensor status: BME68X "));
+  Serial.print(bme68xStatus);
+  Serial.print(F(" | BSEC "));
+  Serial.println(bsecStatus);
+
+  if (bme68xStatus < BME68X_OK)
+  {
+    leds.error();
+    display.error("BME68X " + String(bme68xStatus));
+    return halt();
+  }
+  else if (showWarning && bme68xStatus > BME68X_OK)
+  {
+    leds.warning();
+    display.warning("BME68X " + String(bme68xStatus));
+    delay(3000);
+  }
+
+  if (bsecStatus < BSEC_OK)
+  {
+    leds.error();
+    display.error("BSEC " + String(bsecStatus));
+    return halt();
+  }
+  else if (showWarning && bsecStatus > BSEC_OK)
+  {
+    leds.warning();
+    display.warning("BSEC " + String(bsecStatus));
+    delay(3000);
+  }
 }
