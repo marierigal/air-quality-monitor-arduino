@@ -2,6 +2,7 @@
 
 #include <Leds.h>
 #include <Display.h>
+#include <Qtouch.h>
 #include <Data.h>
 #include <EnvSensor.h>
 
@@ -9,10 +10,12 @@
 #include "bitmap_leaf.h"
 #include "bitmap_temperature.h"
 
+#define TOUCH_SENSITIVITY 100 // Set to 200 if using the case, 100 otherwise
+
 #define BSEC_SAVE_STATE 1
 #define BSEC_STATE_SAVE_INTERVAL (5 * 60 * 1000)
 
-#define STATE_TIMEOUT (10 * 1000)
+#define STATE_TIMEOUT (3 * 1000)
 
 typedef enum
 {
@@ -25,8 +28,10 @@ typedef enum
 AppState appState = APP_STATE_IDLE;
 AppState lastAppState = appState;
 long lastAppStateChange;
+bool appStateAuto = true;
 Leds leds;
 Display display;
+Qtouch qtouch;
 Data data;
 EnvSensor envSensor;
 String lastData;
@@ -40,7 +45,7 @@ void halt();
 /**
  * @brief Set the application state
  */
-void setAppState(AppState state);
+void setAppState(AppState state, bool stateAuto = true);
 
 /**
  * @brief Switch to next application state
@@ -119,6 +124,15 @@ void setup()
   }
 
   /**
+   * Initialize the touch sensor
+   */
+  if (!qtouch.begin(TOUCH_SENSITIVITY))
+  {
+    Serial.println(F("Error initializing touch sensor"));
+    return halt();
+  }
+
+  /**
    * Initialize the SD card
    */
   if (!data.begin())
@@ -155,9 +169,12 @@ void setup()
  */
 void loop()
 {
+  // Update sensors
   handleEnvSensorStatus(envSensor.update(), false);
+  qtouch.update();
 
 #if BSEC_SAVE_STATE
+  // Save BSEC state
   if (millis() - lastBsecStateSave > BSEC_STATE_SAVE_INTERVAL)
   {
     saveBsecState();
@@ -165,8 +182,18 @@ void loop()
   }
 #endif
 
-  uint8_t data;
+  // Handle touch events
+  if (qtouch.onTouchDown(TOUCH0))
+    setAppState(APP_STATE_TEMPERATURE, false);
+  if (qtouch.onTouchDown(TOUCH1))
+    setAppState(APP_STATE_HUMIDITY, false);
+  if (qtouch.onTouchDown(TOUCH2))
+    nextAppState();
+  if (qtouch.onTouchDown(TOUCH3))
+    setAppState(APP_STATE_IAQ, false);
 
+  // Handle application state
+  uint8_t data;
   switch (appState)
   {
   case APP_STATE_IDLE:
@@ -190,11 +217,9 @@ void loop()
     break;
   }
 
-  if (millis() - lastAppStateChange > STATE_TIMEOUT)
-  {
+  // Auto switch state
+  if (appStateAuto && millis() - lastAppStateChange > STATE_TIMEOUT)
     nextAppState();
-    lastAppStateChange = millis();
-  }
 
   delay(10);
 }
@@ -206,9 +231,11 @@ void halt()
     delay(10);
 }
 
-void setAppState(AppState state)
+void setAppState(AppState state, bool stateAuto)
 {
   appState = state;
+  appStateAuto = stateAuto;
+  lastAppStateChange = millis();
 }
 
 void nextAppState()
