@@ -119,7 +119,7 @@ public:
      * @param color The color of the text
      * @param wrap True to wrap the text
      */
-    void drawText(uint16_t x, uint16_t y, String message, uint8_t size, uint16_t color = Display::WHITE, uint16_t background = Display::BLACK);
+    void drawText(uint16_t x, uint16_t y, String message, uint8_t size, uint16_t color = Display::WHITE);
 
     /**
      * @brief Draw a text centered horizontally on the screen
@@ -128,7 +128,7 @@ public:
      * @param size The size of the text
      * @param color The color of the text
      */
-    void drawText(uint16_t y, String message, uint8_t size, uint16_t color = Display::WHITE, uint16_t background = Display::BLACK);
+    void drawText(uint16_t y, String message, uint8_t size, uint16_t color = Display::WHITE);
 
     /**
      * @brief Draw a text centered on the screen
@@ -136,7 +136,7 @@ public:
      * @param size The size of the text
      * @param color The color of the text
      */
-    void drawText(String message, uint8_t size, uint16_t color = Display::WHITE, uint16_t background = Display::BLACK);
+    void drawText(String message, uint8_t size, uint16_t color = Display::WHITE);
 
     /**
      * @brief Get the origin coordinates of the text to center it

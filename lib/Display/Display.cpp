@@ -82,10 +82,8 @@ void Display::drawIcon(const byte *bitmap, uint16_t width, uint16_t height, uint
     drawIcon(x, y, bitmap, width, height, color);
 }
 
-void Display::drawText(uint16_t x, uint16_t y, String message, uint8_t size, uint16_t color, uint16_t background)
+void Display::drawText(uint16_t x, uint16_t y, String message, uint8_t size, uint16_t color)
 {
-    Bounds textBounds = getTextBounds(message, size);
-    display->fillRect(0, y, display->width(), textBounds.height, background);
     display->setTextColor(color);
     display->setTextWrap(false);
     display->setTextSize(size);
@@ -93,16 +91,16 @@ void Display::drawText(uint16_t x, uint16_t y, String message, uint8_t size, uin
     display->print(message);
 }
 
-void Display::drawText(uint16_t y, String message, uint8_t size, uint16_t color, uint16_t background)
+void Display::drawText(uint16_t y, String message, uint8_t size, uint16_t color)
 {
     Bounds textBounds = getTextBounds(message, size);
-    drawText(textBounds.centerOrigin.x, y, message, size, color, background);
+    drawText(textBounds.centerOrigin.x, y, message, size, color);
 }
 
-void Display::drawText(String message, uint8_t size, uint16_t color, uint16_t background)
+void Display::drawText(String message, uint8_t size, uint16_t color)
 {
     Bounds textBounds = getTextBounds(message, size);
-    drawText(textBounds.centerOrigin.x, textBounds.centerOrigin.y, message, size, color, background);
+    drawText(textBounds.centerOrigin.x, textBounds.centerOrigin.y, message, size, color);
 }
 
 void Display::iconWithText(uint16_t backgroundColor, uint16_t foregroundColor, const byte *bitmap, String message)
