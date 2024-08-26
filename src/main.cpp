@@ -15,7 +15,7 @@
 #define BSEC_SAVE_STATE 1
 #define BSEC_STATE_SAVE_INTERVAL (5 * 60 * 1000)
 
-#define STATE_TIMEOUT (3 * 1000)
+#define STATE_TIMEOUT (10 * 1000)
 
 typedef enum
 {
@@ -35,6 +35,7 @@ Qtouch qtouch;
 Data data;
 EnvSensor envSensor;
 String lastData;
+String lastAccuracy;
 long lastBsecStateSave;
 
 /**
@@ -58,7 +59,7 @@ void nextAppState();
  * @param icon The icon to display
  * @param data The data to display
  */
-void displayDataScreen(uint16_t background, const byte *icon, String data);
+void displayDataScreen(uint16_t background, const byte *icon, String data, String accuracy = "");
 
 /**
  * @brief Get BSEC state from SD card
@@ -170,7 +171,7 @@ void setup()
 void loop()
 {
   // Update sensors
-  handleEnvSensorStatus(envSensor.update(), false);
+  envSensor.update();
   qtouch.update();
 
 #if BSEC_SAVE_STATE
@@ -213,7 +214,7 @@ void loop()
 
   case APP_STATE_IAQ:
     data = 100 - env_sensor::iaq * 100 / 500;
-    displayDataScreen(display.color565(141, 204, 51), bitmap_leaf, String(data) + "%");
+    displayDataScreen(display.color565(141, 204, 51), bitmap_leaf, String(data) + "%", "- " + String(env_sensor::iaqAccuracy) + " -");
     break;
   }
 
@@ -260,21 +261,29 @@ void nextAppState()
   }
 }
 
-void displayDataScreen(uint16_t background, const byte *icon, String data)
+void displayDataScreen(uint16_t background, const byte *icon, String data, String accuracy)
 {
   if (lastAppState != appState)
   {
     lastAppState = appState;
     lastData = "";
+    lastAccuracy = "";
     display.drawBackground(background);
     display.drawIcon(30, icon, 64, 64, Display::WHITE);
   }
 
   if (lastData != data)
   {
-    display.drawText(160, lastData, 10, background);
+    display.drawText(160, lastData, 10, background); // Hide previous text
     display.drawText(160, data, 10, Display::WHITE);
     lastData = data;
+  }
+
+  if (lastAccuracy != accuracy)
+  {
+    display.drawText(220, lastAccuracy, 3, background); // Hide previous text
+    display.drawText(220, accuracy, 3, Display::WHITE);
+    lastAccuracy = accuracy;
   }
 }
 
