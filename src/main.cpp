@@ -62,6 +62,12 @@ void nextAppState();
 void displayDataScreen(uint16_t background, const byte *icon, String data, String accuracy = "");
 
 /**
+ * @brief Flash a LED
+ * @param index The LED index
+ */
+void flashLed(uint8_t index);
+
+/**
  * @brief Get BSEC state from SD card
  */
 bool loadBsecState(uint8_t *state);
@@ -185,13 +191,28 @@ void loop()
 
   // Handle touch events
   if (qtouch.onTouchDown(TOUCH0))
+  {
     setAppState(APP_STATE_TEMPERATURE, false);
+    flashLed(0);
+  }
+
   if (qtouch.onTouchDown(TOUCH1))
+  {
     setAppState(APP_STATE_HUMIDITY, false);
+    flashLed(1);
+  }
+
   if (qtouch.onTouchDown(TOUCH2))
+  {
     nextAppState();
+    flashLed(2);
+  }
+
   if (qtouch.onTouchDown(TOUCH3))
+  {
     setAppState(APP_STATE_IAQ, false);
+    flashLed(3);
+  }
 
   // Handle application state
   uint8_t data;
@@ -285,6 +306,13 @@ void displayDataScreen(uint16_t background, const byte *icon, String data, Strin
     display.drawText(220, accuracy, 3, Display::WHITE);
     lastAccuracy = accuracy;
   }
+}
+
+void flashLed(uint8_t index)
+{
+  leds.set(index, leds.white);
+  delay(50);
+  leds.set(index, leds.black);
 }
 
 bool loadBsecState(uint8_t *state)

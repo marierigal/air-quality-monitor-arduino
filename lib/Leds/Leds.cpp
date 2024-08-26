@@ -36,28 +36,31 @@ void Leds::end()
 void Leds::all(uint32_t color)
 {
     leds->fill(color, 0, NUMPIXELS);
+    leds->show();
+}
+
+void Leds::set(uint8_t index, uint32_t color)
+{
+    leds->setPixelColor(index, color);
+    leds->show();
 }
 
 void Leds::clear()
 {
     all(black);
-    leds->show();
 }
 
 void Leds::error()
 {
     all(red);
-    leds->show();
 }
 
 void Leds::warning()
 {
     all(orange);
-    leds->show();
 }
 
 void Leds::success()
 {
     all(green);
-    leds->show();
 }
