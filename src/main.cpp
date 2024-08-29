@@ -13,7 +13,7 @@
 #define BITMAP_WIDTH 32
 #define BITMAP_HEIGHT 32
 
-#define TOUCH_SENSITIVITY 100 // Set to 200 if using the case, 100 otherwise
+#define TOUCH_SENSITIVITY 80
 
 #define BSEC_SAVE_STATE 1
 #define BSEC_STATE_SAVE_INTERVAL (5 * 60 * 1000)
