@@ -50,6 +50,11 @@ void Leds::clear()
     all(black);
 }
 
+void Leds::setBrightness(uint8_t brightness)
+{
+    leds->setBrightness(brightness);
+}
+
 void Leds::error()
 {
     all(red);

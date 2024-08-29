@@ -50,6 +50,12 @@ public:
     void clear();
 
     /**
+     * @brief Set the brightness of the LEDs
+     * @param brightness The brightness
+     */
+    void setBrightness(uint8_t brightness);
+
+    /**
      * @brief Turn on the LEDs with a red color
      */
     void error();

@@ -333,9 +333,11 @@ void displayDataScreen(const byte *icon, String data, String accuracy)
 
 void flashLed(uint8_t index)
 {
+  leds.setBrightness(1);
   leds.set(index, leds.white);
   delay(50);
   leds.set(index, leds.black);
+  leds.setBrightness(BRIGHTNESS);
 }
 
 bool loadBsecState(uint8_t *state)
