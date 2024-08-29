@@ -15,6 +15,8 @@
 
 #define TOUCH_SENSITIVITY 80
 
+#define TEMPERATURE_OFFSET (-4)
+
 #define BSEC_SAVE_STATE 1
 #define BSEC_STATE_SAVE_INTERVAL (5 * 60 * 1000)
 
@@ -238,7 +240,7 @@ void loop()
     break;
 
   case APP_STATE_TEMPERATURE:
-    data = env_sensor::temperature;
+    data = env_sensor::temperature + TEMPERATURE_OFFSET;
     displayDataScreen(bitmap_temperature, String(data) + "'C");
     break;
 
