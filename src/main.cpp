@@ -10,6 +10,9 @@
 #include "bitmap_leaf.h"
 #include "bitmap_temperature.h"
 
+#define BITMAP_WIDTH 32
+#define BITMAP_HEIGHT 32
+
 #define TOUCH_SENSITIVITY 100 // Set to 200 if using the case, 100 otherwise
 
 #define BSEC_SAVE_STATE 1
@@ -54,12 +57,18 @@ void setAppState(AppState state, bool stateAuto = true);
 void nextAppState();
 
 /**
+ * @brief Display error text
+ * @param message The message to display
+ */
+void displayError(String message);
+
+/**
  * @brief Display a data screen
  * @param background The background color
  * @param icon The icon to display
  * @param data The data to display
  */
-void displayDataScreen(uint16_t background, const byte *icon, String data, String accuracy = "");
+void displayDataScreen(const byte *icon, String data, String accuracy = "");
 
 /**
  * @brief Flash a LED
@@ -92,6 +101,11 @@ String getBsecStateFilename();
  * @param status The environment sensor status
  */
 void handleEnvSensorStatus(EnvSensorStatus status, bool showWarning);
+
+/**
+ * @brief Get the maximum value between two integers
+ */
+int max(int a, int b);
 
 /**
  * @brief Setup
@@ -225,17 +239,17 @@ void loop()
 
   case APP_STATE_TEMPERATURE:
     data = env_sensor::temperature;
-    displayDataScreen(display.color565(64, 204, 177), bitmap_temperature, String(data) + "'");
+    displayDataScreen(bitmap_temperature, String(data) + "'C");
     break;
 
   case APP_STATE_HUMIDITY:
     data = env_sensor::humidity;
-    displayDataScreen(display.color565(51, 123, 204), bitmap_droplet, String(data) + "%");
+    displayDataScreen(bitmap_droplet, String(data) + "%");
     break;
 
   case APP_STATE_IAQ:
     data = 100 - env_sensor::iaq * 100 / 500;
-    displayDataScreen(display.color565(141, 204, 51), bitmap_leaf, String(data) + "%", "- " + String(env_sensor::iaqAccuracy) + " -");
+    displayDataScreen(bitmap_leaf, String(data) + "%", String(env_sensor::iaqAccuracy));
     break;
   }
 
@@ -282,30 +296,39 @@ void nextAppState()
   }
 }
 
-void displayDataScreen(uint16_t background, const byte *icon, String data, String accuracy)
+void displayError(String message)
 {
-  if (lastAppState != appState)
-  {
-    lastAppState = appState;
-    lastData = "";
-    lastAccuracy = "";
-    display.drawBackground(background);
-    display.drawIcon(30, icon, 64, 64, Display::WHITE);
-  }
+  display.clear();
+  Bounds bounds = display.getTextBounds(message, 2, false);
+  display.drawText(0, bounds.height, message, 2, true);
+  display.show();
+}
 
-  if (lastData != data)
-  {
-    display.drawText(160, lastData, 10, background); // Hide previous text
-    display.drawText(160, data, 10, Display::WHITE);
-    lastData = data;
-  }
+void displayDataScreen(const byte *icon, String data, String accuracy)
+{
+  if (lastAppState == appState && lastData == data && lastAccuracy == accuracy)
+    return;
+
+  display.clear();
+
+  lastAppState = appState;
+  lastData = data;
+  lastAccuracy = "";
+
+  uint8_t textSize = 4;
+  display.drawIcon(0, 0, icon, BITMAP_WIDTH, BITMAP_HEIGHT);
+  Bounds bounds = display.getTextBounds(data, textSize, false);
+  display.drawText(max(48, display.width - bounds.width), (display.height + bounds.height) / 2, data, textSize, false);
 
   if (lastAccuracy != accuracy)
   {
-    display.drawText(220, lastAccuracy, 3, background); // Hide previous text
-    display.drawText(220, accuracy, 3, Display::WHITE);
+    textSize = 1;
+    bounds = display.getTextBounds(accuracy, textSize, false);
+    display.drawText(40, bounds.height, accuracy, textSize, false);
     lastAccuracy = accuracy;
   }
+
+  display.show();
 }
 
 void flashLed(uint8_t index)
@@ -364,26 +387,31 @@ void handleEnvSensorStatus(EnvSensorStatus status, bool showWarning)
   if (bme68xStatus < BME68X_OK)
   {
     leds.error();
-    display.error("BME68X " + String(bme68xStatus));
+    displayError("BME68X " + String(bme68xStatus));
     return halt();
   }
   else if (showWarning && bme68xStatus > BME68X_OK)
   {
     leds.warning();
-    display.warning("BME68X " + String(bme68xStatus));
+    displayError("BME68X " + String(bme68xStatus));
     delay(3000);
   }
 
   if (bsecStatus < BSEC_OK)
   {
     leds.error();
-    display.error("BSEC " + String(bsecStatus));
+    displayError("BSEC " + String(bsecStatus));
     return halt();
   }
   else if (showWarning && bsecStatus > BSEC_OK)
   {
     leds.warning();
-    display.warning("BSEC " + String(bsecStatus));
+    displayError("BSEC " + String(bsecStatus));
     delay(3000);
   }
+}
+
+int max(int a, int b)
+{
+  return a > b ? a : b;
 }
